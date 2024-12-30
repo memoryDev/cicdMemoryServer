@@ -42,9 +42,8 @@ jobs:
         run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.tar.gz s3://memory-server/$GITHUB_SHA.tar.gz
 
       - name: Create Deployment
-        run: |
-          aws deploy create-deployment
-            --application-name cicdMemoryServer
-            --deployment-config-name CodeDeployDefault.AllAtOnce
-            --deployment-group-name Production
-            --s3-location bucket=memory-server,bundleType=tgz,key=$GITHUB_SHA.tar.gz
+        run: aws deploy create-deployment
+          --application-name cicdMemoryServer
+          --deployment-config-name CodeDeployDefault.AllAtOnce
+          --deployment-group-name Production
+          --s3-location bucket=memory-server,bundleType=tgz,key=$GITHUB_SHA.tar.gz
