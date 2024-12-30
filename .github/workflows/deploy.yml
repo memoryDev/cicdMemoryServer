@@ -43,7 +43,7 @@ jobs:
 
       - name: Create Deployment
         run: aws deploy create-deployment
-          --application-name cicdMemoryServer
+          --application-name memory-server
           --deployment-config-name CodeDeployDefault.AllAtOnce
           --deployment-group-name Production
           --s3-location bucket=memory-server,bundleType=tgz,key=$GITHUB_SHA.tar.gz
