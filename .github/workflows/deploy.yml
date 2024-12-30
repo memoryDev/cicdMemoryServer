@@ -39,7 +39,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
       - name: Upload to S3
-        run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.tar.gz s3://cicdMemoryServer/$GITHUB_SHA.tar.gz
+        run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.tar.gz s3://memory-server/$GITHUB_SHA.tar.gz
 
       - name: Create Deployment
         run: |
@@ -47,4 +47,4 @@ jobs:
             --application-name cicdMemoryServer \
             --deployment-config-name CodeDeployDefault.AllAtOnce \
             --deployment-group-name Production \
-            --s3-location bucket=cicdMemoryServer,bundleType=tgz,key=$GITHUB_SHA.tar.gz
+            --s3-location bucket=memory-server,bundleType=tgz,key=$GITHUB_SHA.tar.gz
