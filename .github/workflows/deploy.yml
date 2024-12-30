@@ -45,7 +45,7 @@ jobs:
           script_stop: true
           script: |
             rm -rf /home/ubuntu/cicdMemoryServer/current
-            mkdir /home/ubuntu/cicdMemoryServer/current
+            mkdir -p /home/ubuntu/cicdMemoryServer/current
             mv /home/ubuntu/cicdMemoryServer/tobe/project.jar /home/ubuntu/cicdMemoryServer/current/project.jar
             cd /home/ubuntu/cicdMemoryServer/current
             sudo fuser -k -n tcp 8080 || true
