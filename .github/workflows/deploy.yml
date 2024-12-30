@@ -6,7 +6,7 @@ on:
       -main
 
 jobs:
-  Deploy:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - name: SSH(원격접속)로 EC2에 접속하기
@@ -14,7 +14,7 @@ jobs:
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ scerts.EC2_USERNAME }}
-          port: ${{ secrets.EC2_PRIVATE_KEY }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
           script_stop: true
           script: |
             cd /home/ubuntu/cicdMemoryServer
