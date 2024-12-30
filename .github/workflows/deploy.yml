@@ -54,7 +54,7 @@ jobs:
 
       - name: CodeDeploy를 활용해 EC2에 프로젝트 코드를 배포하라고 명령
         run: aws deploy create-deployment
-            --application-name memory-server
+            --application-name cicdMemoryServer
             --deployment-config-name CodeDeployDefault.AllAtOnce
             --deployment-group-name Production
-            --s3-location bucket=memory-server,bundleType=tgz,key=$GITHUB_SHA.tar.gz
+            --s3-location bucket=cicdMemoryServer,bundleType=tgz,key=$GITHUB_SHA.tar.gz
