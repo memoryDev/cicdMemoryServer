@@ -8,7 +8,6 @@ class MemoryServerApplicationTests {
 
     @Test
     void contextLoads() {
-        throw new RuntimeException("Faild");
     }
 
 }
