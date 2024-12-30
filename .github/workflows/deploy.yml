@@ -38,36 +38,23 @@ jobs:
       - name: 빌드된 파일 이름 변경하기
         run: mv ./build/libs/*SNAPSHOT.jar ./project.jar
 
-        # Github Actions 서버내에 있는 jar파일 EC2 서버로 파일 전송하기(라이브러리)
-      - name: SCP로 EC2에 빌드된 파일 전송하기
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_PRIVATE_KEY }}
-          source: project.jar # 파일전송할 파일 이름
-          target: /home/ubuntu/cicdMemoryServer/tobe # EC2로 전송하는데 어디에 파일을 보낼지 지정
 
-        # SSH이용하여 EC2서버로 접속하기(라이브러리)
-      - name: SSH(원격접속)로 EC2에 접속하기
-        uses: appleboy/ssh-action@v1.0.3
+      - name: 압축하기
+        run: tar -czvf $GITHUB_SHA.tar.gz project.jar appspec.yml scripts
+
+      - name: AWS Resource에 접근할 수 있게 AWS credentials 설정
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_PRIVATE_KEY }}
-          script_stop: true
-          # 1. 기존에 사용하던 프로젝트 폴더 제거
-          # 2. 프로젝트 배포할 폴더 생성
-          # 3. Github Actions로 부터 받은 jar파일 프로젝트 배포 폴더로 이동
-          # 4. 프로젝트 배포 폴더로 이동
-          # 5. 현재 실행중이 8080포트 종료하기(만약 실행중인 8080 없더라도 오류로 처리하지 않고 성공처리함)
-          # 6. 프로젝트 jar 실행
-          # 7. SCP에서 전달받을때 사용하던 폴더 삭제
-          script: |
-            rm -rf /home/ubuntu/cicdMemoryServer/current 
-            mkdir /home/ubuntu/cicdMemoryServer/current
-            mv /home/ubuntu/cicdMemoryServer/tobe/project.jar /home/ubuntu/cicdMemoryServer/current/project.jar
-            cd /home/ubuntu/cicdMemoryServer/current
-            sudo fuser -k -n tcp 8080 || true
-            nohup java -jar project.jar > ./output.log 2>&1 &
-            rm -rf /home/ubuntu/cicdMemoryServer/tobe
+          aws-region: ap-northeast-2
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: S3에 프로젝트 폴더 업로드하기
+        run: aws s3 cp --region ap-northeast-2 ./&GITHUB_SHA.tar.gz s3://cicdMemoryServer/&GITHUB_SHA.tar.gz
+
+      - name: CodeDeploy를 활용해 EC2에 프로젝트 코드를 배포하라고 명령
+        run: aws deploy create-deployment
+            -- application-name memory-server
+            -- deployment-config-name CodeDeployDEfault.AllAtOnce
+            -- deployment-group-name Production
+            -- s3-location bucket=memory-server, bundleType=tgz, key=$GITHUB_SHA.tar.gz
