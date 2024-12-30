@@ -27,17 +27,23 @@ jobs:
       - name: 빌드된 파일 이름 변경하기
         run: mv ./build/libs/*SNAPSHOT.jar ./project.jar
 
+      - name: project.jar 확인
+        run: |
+          ls
+          pwd
+
       - name: SCP로 EC2에 빌드된 파일 전송하기
-        uses: appleboy/ssh-action@v0.1.7
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           source: project.jar
-          target: /home/ubuntu/cicdMemoryServer/tobe/
+          target: /home/ubuntu/cicdMemoryServer/tobe
 
       - name: SSH(원격접속)로 EC2에 접속하기
-        uses: appleboy/ssh-action@v1.2.0
+        uses: appleboy/ssh-action@v1.0.3
+
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
@@ -45,7 +51,7 @@ jobs:
           script_stop: true
           script: |
             rm -rf /home/ubuntu/cicdMemoryServer/current
-            mkdir -p /home/ubuntu/cicdMemoryServer/current/
+            mkdir /home/ubuntu/cicdMemoryServer/current
             mv /home/ubuntu/cicdMemoryServer/tobe/project.jar /home/ubuntu/cicdMemoryServer/current/project.jar
             cd /home/ubuntu/cicdMemoryServer/current
             sudo fuser -k -n tcp 8080 || true
